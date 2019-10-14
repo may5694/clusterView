@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <QWidget>
 #include <QLabel>
-#include <QPushButton>
+#include <QToolButton>
 #include <QLineEdit>
 #include "mesh.hpp"
 #include "glview.hpp"
@@ -18,6 +18,7 @@ public:
 	App(fs::path meshDir = {}, QWidget* parent = NULL);
 
 public slots:
+	void browse();
 	void readMeshes();
 
 protected:
@@ -39,8 +40,8 @@ private:
 	// GUI elements
 	GLView* glView;					// View cluster objs
 	QLineEdit* meshDirLE;			// Directory of meshes to display
+	QToolButton* browseBtn;			// Browse for directory
 	QLabel* nameLbl;				// Name of the current mesh
-	QPushButton* resetViewBtn;		// Reset the view
 
 	// Methods
 	void initGui();		// Initialize GUI widgets
