@@ -26,6 +26,7 @@ public:
 
 	// Public state
 	glm::mat4 worldMtx;		// Model to world matrix
+	std::string name;		// Name of the mesh
 
 private:
 	struct Vertex;

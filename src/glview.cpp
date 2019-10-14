@@ -9,11 +9,12 @@
 using namespace std;
 
 GLView::GLView(QWidget* parent) : QOpenGLWidget(parent),
-	shader(0),
+	init(false), shader(0),
 	viewMtx(1.0f), incrViewMtx(1.0f), projMtx(1.0f),
 	rotating(false), zooming(false) {
 
 	setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	setFocusPolicy(Qt::StrongFocus);
 }
 
 GLView::~GLView() {
@@ -57,6 +58,7 @@ void GLView::initializeGL() {
 	}
 
 	// Signal to app that OpenGL is initialized
+	init = true;
 	emit glInitialized();
 }
 
@@ -233,6 +235,7 @@ void GLView::cleanup() {
 		glDeleteProgram(shader);
 		shader = 0;
 	}
+	init = false;
 }
 
 // Compiles and returns the shader given by the source string.
@@ -334,7 +337,7 @@ void main() {
 	gl_Position = projXform * viewXform * vec4(pos, 1.0);
 	vec3 viewNorm = normalize(vec3(viewXform * vec4(norm, 0.0)));
 	fragTC = tc;
-	fragCol = col * max(dot(-lightDir, viewNorm), 0.1);
+	fragCol = col * max(dot(-lightDir, viewNorm), 0.4);
 })";
 
 // Fragment shader source

@@ -11,7 +11,8 @@ Mesh::Mesh(QOpenGLWidget* glView, fs::path objPath) :
 	worldMtx(1.0f) {
 
 	// Throw if no context
-	if (!glView) throw runtime_error("Mesh::Mesh(): context not initialized!");
+	if (!glView || !glView->context())
+		throw runtime_error("Mesh::Mesh(): context not initialized!");
 	makeCurrent = [=]() { glView->makeCurrent(); };
 	makeCurrent();
 
@@ -57,6 +58,7 @@ void Mesh::loadMesh(fs::path objPath) {
 	vector<uint32_t> indexBuf;
 	fs::path texPath;
 	readObj(objPath, vertBuf, indexBuf, texPath);
+	name = objPath.filename().string();
 
 	// Create OpenGL state
 	glGenVertexArrays(1, &vao);

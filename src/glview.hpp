@@ -16,6 +16,9 @@ public:
 
 	QSize sizeHint() const { return { 800, 600 }; }
 
+	// Whether OpenGL is initialized or not
+	bool initialized() { return init; }
+
 	// Set the mesh to draw
 	void setMesh(const std::shared_ptr<Mesh>& mesh);
 
@@ -51,7 +54,8 @@ private:
 	std::shared_ptr<Mesh> mesh;
 
 	// OpenGL state
-	GLuint shader;		// Shader program
+	bool init;
+	GLuint shader;						// Shader program
 	static const GLuint viewXformLoc = 0;	// View matrix location
 	static const GLuint projXformLoc = 1;	// Proj matrix location
 	static const GLuint posLoc = 0;		// Position attrib location
