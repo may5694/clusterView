@@ -28,7 +28,8 @@ protected:
 
 private:
 	// Some typedefs
-	typedef std::vector<std::shared_ptr<Mesh>> vecMesh;
+	typedef std::pair<std::string, std::shared_ptr<Mesh>> nameMesh;
+	typedef std::vector<nameMesh> vecMesh;
 	typedef std::vector<vecMesh> vecVecMesh;
 
 	// Internal state

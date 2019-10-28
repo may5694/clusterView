@@ -49,16 +49,23 @@ void App::readMeshes() {
 	meshDir = newMeshDir;
 	meshes.clear();
 
-	// Group meshes according to cluster ID
-	map<string, int> clusterMap;
+	// Group meshes according to prefix
+	map<string, int> prefixMap;
 
 	cout << "Reading meshes..." << endl;
 
 	// Gather any .obj files
 	vector<fs::path> objPaths;
-	fs::directory_iterator di(meshDir), dend;
+	fs::recursive_directory_iterator di(meshDir), dend;
 	for (; di != dend; ++di) {
+		// Don't recurse into hidden directories
+		if (fs::is_directory(di->path()) &&
+			di->path().filename().string()[0] == '.')
+			di.disable_recursion_pending();
+		// Skip all non-files
 		if (!fs::is_regular_file(di->path())) continue;
+
+		// Add path if it ends in .obj
 		if (di->path().extension().string() == ".obj")
 			objPaths.push_back(di->path());
 	}
@@ -73,19 +80,28 @@ void App::readMeshes() {
 		progress.setValue(i);
 		fs::path p = objPaths[i];
 
-		// Get cluster ID
-		string modelName = p.filename().string();
-		string cluster = modelName.substr(0, modelName.find_first_of("_"));
+		string pathStr = p.string();
+		string nameStr = p.filename().string();
+		// Chop off last "_*__*" in filename from path
+		auto sep = nameStr.find("__");
+		sep = nameStr.find_last_of("_", sep - 1);
+		string prefix = pathStr;
+		if (sep != string::npos)
+			prefix = pathStr.substr(0,
+				pathStr.length() - (nameStr.length() - sep));
 
-		// If we already have this cluster, add this model to its vector
-		if (clusterMap.find(cluster) != clusterMap.end()) {
-			meshes[clusterMap.at(cluster)].push_back(
-				shared_ptr<Mesh>(new Mesh(glView, p)));
+		// If we already have this prefix, add this model to its vector
+		if (prefixMap.find(prefix) != prefixMap.end()) {
+			meshes[prefixMap.at(prefix)].push_back( {
+				fs::relative(p, meshDir).string(),
+				shared_ptr<Mesh>(new Mesh(glView, p)) });
 
-		// If we don't have this cluster, add a new cluster vec
+		// If we don't have this prefix, add a new prefix vec
 		} else {
-			clusterMap[cluster] = meshes.size();
-			meshes.push_back({ shared_ptr<Mesh>(new Mesh(glView, p)) });
+			prefixMap[prefix] = meshes.size();
+			meshes.push_back({ {
+				fs::relative(p, meshDir).string(),
+				shared_ptr<Mesh>(new Mesh(glView, p)) } });
 		}
 
 	}
@@ -211,8 +227,8 @@ void App::updateMesh() {
 
 	// Otherwise set the display mesh and mesh name
 	} else {
-		glView->setMesh(*meshIt);
-		nameLbl->setText(QString::fromStdString((*meshIt)->name));
+		glView->setMesh(meshIt->second);
+		nameLbl->setText(QString::fromStdString(meshIt->first));
 	}
 }
 

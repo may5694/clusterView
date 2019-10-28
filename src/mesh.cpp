@@ -58,7 +58,6 @@ void Mesh::loadMesh(fs::path objPath) {
 	vector<uint32_t> indexBuf;
 	fs::path texPath;
 	readObj(objPath, vertBuf, indexBuf, texPath);
-	name = objPath.filename().string();
 
 	// Create OpenGL state
 	glGenVertexArrays(1, &vao);
